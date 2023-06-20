@@ -1,16 +1,21 @@
---select * from PortfolioProject..CovidDeaths
---order by 3,4
+/*
+Data Exploration Project, using Simple to intermediate sql commands, Aggregate Functions, Joins, CTE's, Temp Tables, Creating Views, Converting Data Types
+*/
 
---select * from PortfolioProject..CovidVaccinations
---order by 3,4
+--Viewing all data from both tables to check for successful import
 
---specifying exact data I'd be using 
+select * from PortfolioProject..CovidDeaths
+order by 3,4
+
+select * from PortfolioProject..CovidVaccinations
+order by 3,4
+
+--Specifying exact data I'd be using 
 Select location, date, total_cases, new_cases, total_deaths, population
 From PortfolioProject..CovidDeaths
 Order by 1,2
 
---Total cases vs Total Deaths(%age of infected people who died)
---how likly death due to covid would be, in my country
+--Total cases vs Total Deaths(%age of infected people who died)(how likly death due to covid would be, in my country)
 Select location, date, total_cases, total_deaths,(total_deaths/total_cases)*100 as DeathRate
 From PortfolioProject..CovidDeaths
 Where location='India'
@@ -24,6 +29,27 @@ From PortfolioProject..CovidDeaths
 Where location='India'
 Order by 1,2
 
+--how many locations/countries taken into account
+select count(distinct location) from PortfolioProject.dbo.CovidDeaths
+Where  continent is not null 
+
+--some continent names are found in location column instead of continents in this data, there continent is null, so selecting data where continent is not null 
+
+--Finding top 5 countries(with respective continents they belong to) with highest no. of deaths
+Select top 5 continent, location, max(total_deaths) as HighestDeathRate
+From PortfolioProject..CovidDeaths
+Where continent is not null
+Group by continent, location
+Order by HighestDeathRate desc
+
+--Finding countries(with respective continents they belong to) where total no. of deaths less than 10k 
+Select continent, location, max(total_deaths) as Maximumdeaths
+From PortfolioProject..CovidDeaths
+Where continent is not null
+Group by continent, location
+Having max(total_deaths)<10000
+Order by Maximumdeaths
+
 --Countries with highest Infection rate comapared to population
 Select location, population, max(total_cases) as HighestInfectionRate,max((total_cases/population))*100 as InfectedPercent
 From PortfolioProject..CovidDeaths
@@ -34,8 +60,6 @@ Order by InfectedPercent desc
 Select location, population,  max(total_deaths) as HighestDeathCount
 From PortfolioProject..CovidDeaths
 Where continent is not null
---some continent names found in location instead of continents in this data, there continent is null
---so selecting data where it's not null 
 Group by location, population
 Order by HighestDeathCount desc
  
